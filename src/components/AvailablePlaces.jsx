@@ -1,27 +1,30 @@
 import { useEffect, useState } from "react";
 import Places from "./Places.jsx";
 import axios from "axios";
+import ErrorPage from "./Error.jsx";
 
 export default function AvailablePlaces({ onSelectPlace }) {
   // state of the loading state
   const [isFetching, setisFetching] = useState(false);
   const [availablePlaces, setavailablePlaces] = useState([]);
+  const [error, seterror] = useState();
 
   useEffect(() => {
     async function getPlaces() {
+      setisFetching(true);
       try {
-        setisFetching(true);
         const response = await axios.get("http://localhost:3000/places");
         // second option - directly inject the result to the state
         setavailablePlaces(response.data.places);
         // first option - returning the result
         // return response.data.places
       } catch (error) {
-        console.error("Error fetching user:", error);
-        return [];
-      } finally {
-        setisFetching(false);
+        seterror({
+          message:
+            error.message || "Could not fetch places, please try again later.",
+        });
       }
+      setisFetching(false);
     }
 
     // second option - calling the funtion.
@@ -34,6 +37,11 @@ export default function AvailablePlaces({ onSelectPlace }) {
     //   setavailablePlaces(places);
     // })();
   }, []);
+
+  // Error handling. additional component
+  if (error) {
+    return <ErrorPage title="An error occurred!" message={error.message} />;
+  }
   return (
     <Places
       title="Available Places"
