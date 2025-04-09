@@ -10,6 +10,16 @@ export async function fetchAvailablePlaces() {
   }
 }
 
+export async function fetchUserPlaces() {
+  try {
+    const response = await api.get("/user-places");
+    return response.data.places;
+  } catch (error) {
+    console.error("Error fetching the user places:", error);
+    throw error;
+  }
+}
+
 export async function updateUserPlaces(places) {
   try {
     const response = await api.put("/user-places", { places });
