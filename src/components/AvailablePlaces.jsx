@@ -61,7 +61,7 @@ export default function AvailablePlaces({ onSelectPlace }) {
       // /////////////////////////////////////////////////////////
       places={availablePlaces}
       fallbackText="No places available."
-      onSelectPlace={availablePlaces}
+      onSelectPlace={onSelectPlace}
     />
   );
 }
