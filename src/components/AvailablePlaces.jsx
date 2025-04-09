@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import Places from "./Places.jsx";
-import axios from "axios";
 import ErrorPage from "./Error.jsx";
 import { sortPlacesByDistance } from "../loc.js";
+import { fetchAvailablePlaces } from "../http.js";
 
 export default function AvailablePlaces({ onSelectPlace }) {
   // state of the loading state
@@ -14,12 +14,11 @@ export default function AvailablePlaces({ onSelectPlace }) {
     async function getPlaces() {
       setisFetching(true);
       try {
-        const response = await axios.get("http://localhost:3000/places");
-        // second option - directly inject the result to the state
+        const places = await fetchAvailablePlaces();
 
         navigator.geolocation.getCurrentPosition((position) => {
           const sortedPlaces = sortPlacesByDistance(
-            response.data.places,
+            places,
             position.coords.latitude,
             position.coords.longitude
           );
