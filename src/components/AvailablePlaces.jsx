@@ -1,52 +1,29 @@
-import { useEffect, useState } from "react";
 import Places from "./Places.jsx";
 import ErrorPage from "./Error.jsx";
 import { sortPlacesByDistance } from "../loc.js";
 import { fetchAvailablePlaces } from "../http.js";
+import { useFetch } from "../hooks/useFetch.js";
+
+async function fetchSortedPlaces() {
+  const places = await fetchAvailablePlaces();
+  return new Promise((resolve) => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      const sortedPlaces = sortPlacesByDistance(
+        places,
+        position.coords.latitude,
+        position.coords.longitude
+      );
+      resolve(sortedPlaces);
+    });
+  });
+}
 
 export default function AvailablePlaces({ onSelectPlace }) {
-  // state of the loading state
-  const [isFetching, setisFetching] = useState(false);
-  const [availablePlaces, setavailablePlaces] = useState([]);
-  const [error, seterror] = useState();
-
-  useEffect(() => {
-    async function getPlaces() {
-      setisFetching(true);
-      try {
-        const places = await fetchAvailablePlaces();
-
-        navigator.geolocation.getCurrentPosition((position) => {
-          const sortedPlaces = sortPlacesByDistance(
-            places,
-            position.coords.latitude,
-            position.coords.longitude
-          );
-          setavailablePlaces(sortedPlaces);
-          setisFetching(false);
-        });
-
-        // first option - returning the result
-        // return response.data.places
-      } catch (error) {
-        seterror({
-          message:
-            error.message || "Could not fetch places, please try again later.",
-        });
-        setisFetching(false);
-      }
-    }
-
-    // second option - calling the funtion.
-    getPlaces();
-
-    // first option - using IIFE so that we can have an await function call
-    // (async () => {
-    //   // Immediately invoked async function expression (IIFE)
-    //   const places = await getPlaces();
-    //   setavailablePlaces(places);
-    // })();
-  }, []);
+  const {
+    isFetching,
+    error,
+    fetchedData: availablePlaces,
+  } = useFetch(fetchSortedPlaces, []);
 
   // Error handling. additional component
   if (error) {
